@@ -1,11 +1,14 @@
 package com.sns.ss.config;
 
 import com.sns.ss.auth.filter.JwtAuthenticationFilter;
+import com.sns.ss.auth.filter.JwtVerificationFilter;
 import com.sns.ss.auth.handler.CustomAuthenticationFailureHandler;
 import com.sns.ss.auth.handler.CustomAuthenticationSuccessHandler;
 import com.sns.ss.auth.jwt.JwtTokenizer;
+import com.sns.ss.auth.utils.CustomAuthorityUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,29 +28,34 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final JwtTokenizer jwtTokenizer;
+    private final CustomAuthorityUtils customAuthorityUtils;
 
-    public SecurityConfig(JwtTokenizer jwtTokenizer) {
+    public SecurityConfig(JwtTokenizer jwtTokenizer, CustomAuthorityUtils customAuthorityUtils) {
         this.jwtTokenizer = jwtTokenizer;
+        this.customAuthorityUtils = customAuthorityUtils;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+         http
                 .csrf().disable()
                 .cors(withDefaults())
                 .formLogin().disable()
                 .httpBasic().disable()
                 .apply(new CustomFilterConfigurer())
                 .and()
-                .authorizeRequests()
-                .antMatchers("/api/*/members/join", "/api/*/members/login").permitAll()
-                .antMatchers("/api/**").authenticated()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .build();
+                .authorizeRequests(authorize -> authorize
+                        .antMatchers("/api/*/members/join", "/api/*/members/login").permitAll()
+                        .antMatchers(HttpMethod.GET,"/api/v1/members/user").hasRole("USER")
+                        .antMatchers(HttpMethod.GET,"/api/v1/members/admin").hasRole("ADMIN")
+                        .anyRequest().permitAll()
+                );
+//                .antMatchers("/api/*/members/join", "/api/*/members/login").permitAll()
+//                .antMatchers("/api/**").authenticated();
 
+         return http.build();
     }
 
     @Bean
@@ -75,7 +83,12 @@ public class SecurityConfig {
             jwtAuthenticationFilter.setFilterProcessesUrl("/api/v1/members/login");
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(new CustomAuthenticationSuccessHandler());
             jwtAuthenticationFilter.setAuthenticationFailureHandler(new CustomAuthenticationFailureHandler());
-            builder.addFilter(jwtAuthenticationFilter);
+
+            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenizer, customAuthorityUtils);
+            builder
+                    .addFilter(jwtAuthenticationFilter)
+                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class);
+
         }
 
     }

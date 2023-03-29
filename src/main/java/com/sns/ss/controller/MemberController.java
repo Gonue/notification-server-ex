@@ -6,10 +6,8 @@ import com.sns.ss.dto.response.MemberJoinResponse;
 import com.sns.ss.dto.response.MemberLoginResponse;
 import com.sns.ss.dto.response.Response;
 import com.sns.ss.service.MemberService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -23,6 +21,15 @@ public class MemberController {
     @PostMapping("/join")
     public Response<MemberJoinResponse> join(@RequestBody MemberJoinRequest memberJoinRequest){
         return Response.success(MemberJoinResponse.from(memberService.join(memberJoinRequest.getEmail(), memberJoinRequest.getPassword(), memberJoinRequest.getName())));
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> test1(){
+        return ResponseEntity.ok("success");
+    }
+    @GetMapping("/admin")
+    public ResponseEntity<?> test2(){
+        return ResponseEntity.ok("success");
     }
 
 //    @PostMapping("/login")
