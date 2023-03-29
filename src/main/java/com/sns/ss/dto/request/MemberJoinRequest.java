@@ -1,19 +1,16 @@
 package com.sns.ss.dto.request;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@AllArgsConstructor
-@Getter
-@Setter
+@Data
 public class MemberJoinRequest {
 
-    private String name;
-    private String password;
+    private final String email;
+    private final String name;
+    private final String password;
 
-    public static MemberJoinRequest of(String name, String content){
-        return new MemberJoinRequest(name, content);
+    public static MemberJoinRequest of(String password, String name, String email){
+        return new MemberJoinRequest(password, name, email);
     }
 }
