@@ -1,6 +1,8 @@
 package com.sns.ss.config;
 
 import com.sns.ss.auth.filter.JwtAuthenticationFilter;
+import com.sns.ss.auth.handler.CustomAuthenticationFailureHandler;
+import com.sns.ss.auth.handler.CustomAuthenticationSuccessHandler;
 import com.sns.ss.auth.jwt.JwtTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -71,6 +73,8 @@ public class SecurityConfig {
 
             JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
             jwtAuthenticationFilter.setFilterProcessesUrl("/api/v1/members/login");
+            jwtAuthenticationFilter.setAuthenticationSuccessHandler(new CustomAuthenticationSuccessHandler());
+            jwtAuthenticationFilter.setAuthenticationFailureHandler(new CustomAuthenticationFailureHandler());
             builder.addFilter(jwtAuthenticationFilter);
         }
 
