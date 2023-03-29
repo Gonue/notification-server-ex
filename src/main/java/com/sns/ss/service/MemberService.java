@@ -1,37 +1,55 @@
 package com.sns.ss.service;
 
+import com.sns.ss.auth.utils.CustomAuthorityUtils;
 import com.sns.ss.dto.MemberDto;
 import com.sns.ss.entity.Member;
 import com.sns.ss.exception.ErrorCode;
 import com.sns.ss.exception.SnsApplicationException;
 import com.sns.ss.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+
+import java.util.List;
+@Transactional
 @Service
-@RequiredArgsConstructor
 public class MemberService {
 
-
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CustomAuthorityUtils customAuthorityUtils;
 
-    public MemberDto join(String name, String password){
-        memberRepository.findByName(name).ifPresent(it -> {
-            throw new SnsApplicationException(ErrorCode.DUPLICATED_MEMBER_NAME, String.format("%s is duplicated", name));
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, CustomAuthorityUtils customAuthorityUtils) {
+        this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.customAuthorityUtils = customAuthorityUtils;
+    }
+
+    public MemberDto join(String email, String password, String name){
+        memberRepository.findByEmail(email).ifPresent(it -> {
+            throw new SnsApplicationException(ErrorCode.DUPLICATED_EMAIL, String.format("%s is duplicated", email));
         });
 
-        Member member = memberRepository.save(Member.of(name, password));
+        Member savedMember = memberRepository.save(Member.of(email, name, passwordEncoder.encode(password)));
+        List<String> roles = customAuthorityUtils.createRoles(email);
+        savedMember.setRoles(roles);
+        return MemberDto.from(savedMember);
 
-        return MemberDto.from(member);
     }
 
-    public String login(String name, String password){
-        Member member = memberRepository.findByName(name).orElseThrow(()-> new SnsApplicationException(ErrorCode.DUPLICATED_MEMBER_NAME, ""));
 
-        if(member.getPassword().equals(password)){
-            throw new SnsApplicationException(ErrorCode.DUPLICATED_MEMBER_NAME, "");
-        }
-
-        return "";
-    }
+//    public String login(String email, String password){
+//        Member member = memberRepository.findByEmail(email).orElseThrow(()-> new SnsApplicationException(ErrorCode.USER_NOT_FOUND,String.format("$s not founded",email)));
+//
+//
+//        if(!passwordEncoder.matches(password, member.getPassword())){
+//            throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
+//        }
+//
+//
+//
+//        return "";
+//    }
 }
+

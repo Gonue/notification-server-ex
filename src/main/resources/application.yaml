@@ -21,3 +21,13 @@ spring:
     properties:
       hibernate.format_sql: true
       hibernate.default_batch_fetch_size: 100
+
+
+mail:
+   address:
+     admin: admin@gmail.com
+
+jwt:
+  key: test1234123412341234123412341234
+  access-token-expiration-minutes: 40
+  refresh-token-expiration-minutes: 420
