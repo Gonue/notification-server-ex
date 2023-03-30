@@ -1,8 +1,8 @@
-debug: false
-management.endpoints.web.exposure.include: "*"
-
 logging:
   level:
+    org:
+      springframework:
+        web: debug
     com.sh.board: debug
     org.springframework.web.servlet: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
@@ -12,6 +12,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/sns
     username: postgres
     password: 1234
+  mvc:
+   log-request-details: true
 
   jpa:
     defer-datasource-initialization: true
@@ -23,6 +25,18 @@ spring:
       hibernate.default_batch_fetch_size: 100
 
 
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+
 mail:
    address:
      admin: admin@gmail.com
@@ -31,3 +45,4 @@ jwt:
   key: test1234123412341234123412341234
   access-token-expiration-minutes: 40
   refresh-token-expiration-minutes: 420
+

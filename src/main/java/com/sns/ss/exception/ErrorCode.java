@@ -1,11 +1,9 @@
 package com.sns.ss.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor
 public enum ErrorCode {
 
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "이름을 찾을수 없습니다."),
@@ -16,4 +14,9 @@ public enum ErrorCode {
     ;
     private HttpStatus status;
     private String message;
+
+    ErrorCode(HttpStatus status, String message) {
+        this.status = status;
+        this.message = message;
+    }
 }

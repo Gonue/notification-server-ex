@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -26,6 +27,9 @@ class MemberServiceTest {
     private MemberService memberService;
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private BCryptPasswordEncoder encoder;
+
 
     @DisplayName("회원가입 - 정상")
     @Test
@@ -34,6 +38,7 @@ class MemberServiceTest {
         String name = "name";
         String password = "password";
         when(memberRepository.findByName(name)).thenReturn(Optional.empty());
+        when(encoder.encode(password)).thenReturn("BCryptPassword");
         when(memberRepository.save(any())).thenReturn(Optional.of(addFixture(name, password)));
 
         //When & Then
@@ -48,6 +53,7 @@ class MemberServiceTest {
         String password = "password";
         Member fixture = addFixture(name, password);
         when(memberRepository.findByName(name)).thenReturn(Optional.of(fixture));
+        when(encoder.encode(password)).thenReturn("BCryptPassword");
         when(memberRepository.save(any())).thenReturn(Optional.of(fixture));
 
         //When & Then
