@@ -9,9 +9,9 @@ import com.sns.ss.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.util.List;
+import java.util.Optional;
+
 @Transactional
 @Service
 public class MemberService {
@@ -26,6 +26,7 @@ public class MemberService {
         this.customAuthorityUtils = customAuthorityUtils;
     }
 
+
     public MemberDto join(String email, String password, String name){
         memberRepository.findByEmail(email).ifPresent(it -> {
             throw new SnsApplicationException(ErrorCode.DUPLICATED_EMAIL, String.format("%s is duplicated", email));
@@ -37,19 +38,5 @@ public class MemberService {
         return MemberDto.from(savedMember);
 
     }
-
-
-//    public String login(String email, String password){
-//        Member member = memberRepository.findByEmail(email).orElseThrow(()-> new SnsApplicationException(ErrorCode.USER_NOT_FOUND,String.format("$s not founded",email)));
-//
-//
-//        if(!passwordEncoder.matches(password, member.getPassword())){
-//            throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
-//        }
-//
-//
-//
-//        return "";
-//    }
 }
 

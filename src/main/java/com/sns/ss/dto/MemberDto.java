@@ -21,6 +21,10 @@ public class MemberDto {
         return new MemberDto(null, password, email, name, null,null,null,null);
     }
 
+    public static MemberDto of(String email, String name){
+        return new MemberDto(null,null,email,name,null,null,null,null);
+    }
+
     public static MemberDto of(Long memberId, String password, String email, String name, LocalDateTime createdAt, String createdBy, LocalDateTime modifiedAt, String modifiedBy){
         return new MemberDto(memberId, password, email, name, createdAt, createdBy, modifiedAt, modifiedBy);
     }

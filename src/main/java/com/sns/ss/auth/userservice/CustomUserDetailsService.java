@@ -1,4 +1,4 @@
-package com.sns.ss.auth.userdetails;
+package com.sns.ss.auth.userservice;
 
 import com.sns.ss.auth.utils.CustomAuthorityUtils;
 import com.sns.ss.entity.Member;
@@ -23,7 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.memberRepository = memberRepository;
         this.customAuthorityUtils = customAuthorityUtils;
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

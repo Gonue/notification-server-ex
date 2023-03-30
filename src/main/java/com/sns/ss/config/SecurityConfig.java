@@ -2,19 +2,24 @@ package com.sns.ss.config;
 
 import com.sns.ss.auth.filter.JwtAuthenticationFilter;
 import com.sns.ss.auth.filter.JwtVerificationFilter;
+import com.sns.ss.auth.filter.OAuth2MemberSuccessHandler;
 import com.sns.ss.auth.handler.CustomAuthenticationFailureHandler;
 import com.sns.ss.auth.handler.CustomAuthenticationSuccessHandler;
+import com.sns.ss.auth.handler.MemberAccessDeniedHandler;
+import com.sns.ss.auth.handler.MemberAuthenticationEntryPoint;
 import com.sns.ss.auth.jwt.JwtTokenizer;
 import com.sns.ss.auth.utils.CustomAuthorityUtils;
+import com.sns.ss.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -25,37 +30,46 @@ import java.util.Arrays;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
+@EnableWebSecurity(debug = true)
 public class SecurityConfig {
 
     private final JwtTokenizer jwtTokenizer;
     private final CustomAuthorityUtils customAuthorityUtils;
+    private final MemberRepository memberRepository;
 
-    public SecurityConfig(JwtTokenizer jwtTokenizer, CustomAuthorityUtils customAuthorityUtils) {
+    public SecurityConfig(JwtTokenizer jwtTokenizer, CustomAuthorityUtils customAuthorityUtils, MemberRepository memberRepository) {
         this.jwtTokenizer = jwtTokenizer;
         this.customAuthorityUtils = customAuthorityUtils;
+        this.memberRepository = memberRepository;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-         http
+        http
+                .headers().frameOptions().sameOrigin()
+                .and()
                 .csrf().disable()
                 .cors(withDefaults())
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .formLogin().disable()
                 .httpBasic().disable()
-                .apply(new CustomFilterConfigurer())
+                .exceptionHandling()
+                .authenticationEntryPoint(new MemberAuthenticationEntryPoint())
+                .accessDeniedHandler(new MemberAccessDeniedHandler())
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .apply(new CustomFilterConfigurer())
                 .and()
                 .authorizeRequests(authorize -> authorize
                         .antMatchers("/api/*/members/join", "/api/*/members/login").permitAll()
-                        .antMatchers(HttpMethod.GET,"/api/v1/members/user").hasRole("USER")
-                        .antMatchers(HttpMethod.GET,"/api/v1/members/admin").hasRole("ADMIN")
-                        .anyRequest().permitAll()
-                );
-//                .antMatchers("/api/*/members/join", "/api/*/members/login").permitAll()
-//                .antMatchers("/api/**").authenticated();
+                        .antMatchers("/api/v1/members/user").hasRole("USER")
+                        .antMatchers("/api/v1/members/admin").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(new OAuth2MemberSuccessHandler(jwtTokenizer, customAuthorityUtils, memberRepository)));
 
-         return http.build();
+        return http.build();
     }
 
     @Bean
@@ -87,10 +101,9 @@ public class SecurityConfig {
             JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenizer, customAuthorityUtils);
             builder
                     .addFilter(jwtAuthenticationFilter)
-                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class);
+                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class)
+                    .addFilterAfter(jwtVerificationFilter, OAuth2LoginAuthenticationFilter.class);
 
         }
-
     }
-
 }
