@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -44,10 +45,11 @@ public class MemberControllerTest {
     @Test
     public void member_register_controller_test_isOk() throws Exception {
         //Given
+        String email = "email";
         String name = "name";
         String password = "password";
 
-        when(memberService.join(name,password)).thenReturn(mock(MemberDto.class));
+        when(memberService.join(email,name,password)).thenReturn(mock(MemberDto.class));
 
         //When & Then
         ResultActions actions =
@@ -55,7 +57,7 @@ public class MemberControllerTest {
                         post("/api/v1/members/join")
                                 .accept(MediaType.APPLICATION_JSON)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsBytes(new MemberJoinRequest(name, password)))
+                                .content(objectMapper.writeValueAsBytes(new MemberJoinRequest(email,name,password)))
                 );
 
         actions
@@ -67,9 +69,10 @@ public class MemberControllerTest {
     public void member_register_controller_test_errorCase1() throws Exception {
         //Given
         String name = "name";
+        String email = "email";
         String password = "password";
 
-        when(memberService.join(name,password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_MEMBER_NAME, ""));
+        when(memberService.join(email,name,password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_EMAIL, ""));
 
         //When & Then
         ResultActions actions =
@@ -77,76 +80,11 @@ public class MemberControllerTest {
                         post("/api/v1/members/join")
                                 .accept(MediaType.APPLICATION_JSON)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsBytes(new MemberJoinRequest(name, password)))
+                                .content(objectMapper.writeValueAsBytes(new MemberJoinRequest(email,name,password)))
                 );
 
         actions
                 .andExpect(status().isConflict());
     }
-
-    @DisplayName("로그인 - 정상")
-    @Test
-    public void member_login_controller_test_isOk() throws Exception {
-        //Given
-        String name = "name";
-        String password = "password";
-
-        when(memberService.login(name, password)).thenReturn("test_token");
-        //When & Then
-        ResultActions actions =
-                mvc.perform(
-                        post("/api/v1/members/login")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsBytes(new MemberLoginRequest(name, password)))
-                );
-
-        actions
-                .andExpect(status().isOk());
-    }
-
-    @DisplayName("로그인 - 데이터에 등록이 안된 name 입력시 - 에러반환")
-    @Test
-    public void member_login_controller_test_errorCase1() throws Exception {
-        //Given
-        String name = "name";
-        String password = "password";
-
-        when(memberService.login(name, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_MEMBER_NAME, ""));
-        //When & Then
-        ResultActions actions =
-                mvc.perform(
-                        post("/api/v1/members/login")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsBytes(new MemberLoginRequest(name, password)))
-                );
-
-        actions
-                .andExpect(status().isNotFound());
-    }
-
-    @DisplayName("로그인 - 데이터와는 다른 password 입력시 - 에러반환")
-    @Test
-    public void member_login_controller_test_errorCase2() throws Exception {
-        //Given
-        String name = "name";
-        String password = "password";
-
-        when(memberService.login(name, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_MEMBER_NAME, ""));
-        //When & Then
-        ResultActions actions =
-                mvc.perform(
-                        post("/api/v1/members/login")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsBytes(new MemberLoginRequest(name, password)))
-                );
-
-        actions
-                .andExpect(status().isUnauthorized());
-    }
-
-
 
 }

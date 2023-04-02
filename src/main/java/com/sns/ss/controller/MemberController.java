@@ -32,9 +32,4 @@ public class MemberController {
         return ResponseEntity.ok("success");
     }
 
-//    @PostMapping("/login")
-//    public Response<MemberLoginResponse> login(@RequestBody MemberLoginRequest request){
-//        String token = memberService.login(request.getName(), request.getPassword());
-//        return Response.success(new MemberLoginResponse(token));
-//    }
 }
