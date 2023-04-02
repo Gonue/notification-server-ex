@@ -1,7 +1,7 @@
 package com.sns.ss.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sns.ss.exception.ErrorResponse;
+import com.sns.ss.dto.response.MemberLoginResponse;
 import com.sns.ss.exception.SnsApplicationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,12 +27,12 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
 
     //TODO : 추후 Exception 수정
-    private void sendErrorResponse(HttpServletResponse response, AuthenticationException exception) throws IOException {
+    private void sendErrorResponse(HttpServletResponse response, AuthenticationException exception) throws IOException, SnsApplicationException {
         ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.UNAUTHORIZED);
+        MemberLoginResponse memberLoginResponse = MemberLoginResponse.of(HttpStatus.UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        response.getWriter().write(objectMapper.writeValueAsString(memberLoginResponse));
     }
 
 
