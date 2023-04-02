@@ -1,5 +1,4 @@
 package com.sns.ss.auth.filter;
-
 import com.sns.ss.auth.jwt.JwtTokenizer;
 import com.sns.ss.auth.utils.CustomAuthorityUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,9 +48,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         }
 
         private void setAuthenticationToContext(Map<String, Object> claims) {
-            String email = (String) claims.get("email");
+            String username = (String) claims.get("email");
             List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities((List)claims.get("roles"));
-            Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(username,null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 }
