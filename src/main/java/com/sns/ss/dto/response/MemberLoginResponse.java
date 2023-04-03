@@ -1,14 +1,31 @@
 package com.sns.ss.dto.response;
 
-import com.sns.ss.dto.MemberDto;
-import com.sns.ss.entity.Member;
-import lombok.AllArgsConstructor;
+import com.sns.ss.exception.ErrorCode;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor
 public class MemberLoginResponse {
 
-    private String token;
+    private HttpStatus resultCode;
+    private String result;
+
+    public MemberLoginResponse(HttpStatus resultCode, String result) {
+        this.resultCode = resultCode;
+        this.result = result;
+    }
+
+    public static MemberLoginResponse of(ErrorCode exceptionCode) {
+        return new MemberLoginResponse(exceptionCode.getStatus(), exceptionCode.getMessage());
+    }
+
+    public static MemberLoginResponse of(HttpStatus httpStatus) {
+        return new MemberLoginResponse(HttpStatus.valueOf(httpStatus.value()), httpStatus.getReasonPhrase());
+    }
+
+    public static MemberLoginResponse of(HttpStatus httpStatus, String message) {
+        return new MemberLoginResponse(HttpStatus.valueOf(httpStatus.value()), message);
+    }
+
 
 }

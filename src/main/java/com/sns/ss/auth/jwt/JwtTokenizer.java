@@ -32,6 +32,7 @@ public class JwtTokenizer {
     private int refreshTokenExpirationMinutes;
 
 
+
     public String encodeBase64SecretKey(String secretKey) {
         return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
     }
@@ -85,7 +86,6 @@ public class JwtTokenizer {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, expirationMinutes);
         Date expiration = calendar.getTime();
-
         return expiration;
     }
 

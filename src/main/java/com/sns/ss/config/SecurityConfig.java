@@ -1,8 +1,7 @@
 package com.sns.ss.config;
-
 import com.sns.ss.auth.filter.JwtAuthenticationFilter;
 import com.sns.ss.auth.filter.JwtVerificationFilter;
-import com.sns.ss.auth.filter.OAuth2MemberSuccessHandler;
+import com.sns.ss.auth.handler.OAuth2MemberSuccessHandler;
 import com.sns.ss.auth.handler.CustomAuthenticationFailureHandler;
 import com.sns.ss.auth.handler.CustomAuthenticationSuccessHandler;
 import com.sns.ss.auth.handler.MemberAccessDeniedHandler;
@@ -63,8 +62,8 @@ public class SecurityConfig {
                 .authorizeRequests(authorize -> authorize
                         .antMatchers("/api/*/members/join", "/api/*/members/login").permitAll()
                         .antMatchers("/api/v1/members/user").hasRole("USER")
+                        .antMatchers("/api/v1/posts").hasRole("USER")
                         .antMatchers("/api/v1/members/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(new OAuth2MemberSuccessHandler(jwtTokenizer, customAuthorityUtils, memberRepository)));

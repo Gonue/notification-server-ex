@@ -1,4 +1,4 @@
-package com.sns.ss.auth.filter;
+package com.sns.ss.auth.handler;
 
 import com.sns.ss.auth.jwt.JwtTokenizer;
 import com.sns.ss.auth.utils.CustomAuthorityUtils;
@@ -14,7 +14,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
