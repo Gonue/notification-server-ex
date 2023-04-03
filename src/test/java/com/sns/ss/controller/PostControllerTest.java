@@ -54,6 +54,9 @@ public class PostControllerTest {
     @WithAnonymousUser
     void postCreateNotLogin() throws Exception{
 
+        String title = "title";
+        String body = "body";
+
         ResultActions actions =
                         mvc.perform(
                                 post("/api/v1/posts")
