@@ -1,7 +1,9 @@
 package com.sns.ss.controller;
 import com.sns.ss.dto.PostDto;
+import com.sns.ss.dto.request.PostCommentRequest;
 import com.sns.ss.dto.request.PostCreateRequest;
 import com.sns.ss.dto.request.PostUpdateRequest;
+import com.sns.ss.dto.response.PostCommentResponse;
 import com.sns.ss.dto.response.PostResponse;
 import com.sns.ss.dto.response.Response;
 import com.sns.ss.service.PostService;
@@ -58,4 +60,30 @@ public class PostController {
         return Response.success(postService.myList(authentication.getName(), pageable).map(PostResponse::from));
     }
 
+    @PostMapping("/{postId}/likes")
+    public Response<Void> like(@PathVariable Long postId,
+                               Authentication authentication){
+        postService.like(postId,authentication.getName());
+        return Response.success();
+
+    }
+
+    @GetMapping("/{postId}/likes")
+    public Response<Long> likeCount(@PathVariable Long postId){
+        return Response.success(postService.likeCount(postId));
+    }
+
+    @PostMapping("/{postId}/comments")
+    public Response<Void> comment(@PathVariable Long postId,
+                                  @RequestBody PostCommentRequest request,
+                                  Authentication authentication){
+        postService.comment(postId, request.getComment(), authentication.getName());
+        return Response.success();
+    }
+
+    @GetMapping("/{postId}/comments")
+    public Response<Page<PostCommentResponse>> comment(@PathVariable Long postId,
+                                                       Pageable pageable){
+        return Response.success(postService.commentList(postId, pageable).map(PostCommentResponse::from));
+    }
 }
