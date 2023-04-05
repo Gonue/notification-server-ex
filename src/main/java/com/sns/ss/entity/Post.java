@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-
+@Table(indexes = {
+        @Index(columnList = "title"),
+})
 @Setter
 @Getter
 @Entity
-@Table
+
 public class Post extends AuditingFields{
 
     @Id

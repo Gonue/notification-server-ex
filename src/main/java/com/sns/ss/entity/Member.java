@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Table
 @Getter
 @Setter
 @ToString(callSuper = true)
