@@ -1,24 +1,17 @@
 package com.sns.ss.service;
 
+import com.sns.ss.dto.AlarmArgs;
 import com.sns.ss.dto.PostCommentDto;
 import com.sns.ss.dto.PostDto;
-import com.sns.ss.entity.PostComment;
-import com.sns.ss.entity.PostLike;
-import com.sns.ss.entity.Member;
-import com.sns.ss.entity.Post;
+import com.sns.ss.entity.*;
 import com.sns.ss.exception.ErrorCode;
 import com.sns.ss.exception.SnsApplicationException;
-import com.sns.ss.repository.LikeRepository;
-import com.sns.ss.repository.MemberRepository;
-import com.sns.ss.repository.PostCommentRepository;
-import com.sns.ss.repository.PostRepository;
+import com.sns.ss.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -28,12 +21,14 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
     private final PostCommentRepository postCommentRepository;
+    private final AlarmRepository alarmRepository;
 
-    public PostService(PostRepository postRepository, MemberRepository memberRepository, LikeRepository likeRepository, PostCommentRepository postCommentRepository) {
+    public PostService(PostRepository postRepository, MemberRepository memberRepository, LikeRepository likeRepository, PostCommentRepository postCommentRepository, AlarmRepository alarmRepository) {
         this.postRepository = postRepository;
         this.memberRepository = memberRepository;
         this.likeRepository = likeRepository;
         this.postCommentRepository = postCommentRepository;
+        this.alarmRepository = alarmRepository;
     }
 
     @Transactional
@@ -84,7 +79,7 @@ public class PostService {
             throw new SnsApplicationException(ErrorCode.ALREADY_LIKED, String.format("userName %s already like post %d", email,postId));
         });
         likeRepository.save(PostLike.of(member,post));
-
+        alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
     }
 
     @Transactional
@@ -99,6 +94,7 @@ public class PostService {
         Member member = getMemberOrException(email);
 
         postCommentRepository.save(PostComment.of(member, post,  comment));
+        alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
     }
 
     public Page<PostCommentDto> commentList(Long postId, Pageable pageable){
