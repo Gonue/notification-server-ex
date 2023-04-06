@@ -1,9 +1,11 @@
 package com.sns.ss.auth.userservice;
 
 import com.sns.ss.auth.utils.CustomAuthorityUtils;
+import com.sns.ss.dto.MemberDto;
 import com.sns.ss.entity.Member;
 import com.sns.ss.exception.ErrorCode;
 import com.sns.ss.exception.SnsApplicationException;
+import com.sns.ss.repository.MemberCacheRepository;
 import com.sns.ss.repository.MemberRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,14 +20,18 @@ import java.util.Optional;
 public class CustomUserDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final CustomAuthorityUtils customAuthorityUtils;
+    private final MemberCacheRepository memberCacheRepository;
 
-    public CustomUserDetailsService(MemberRepository memberRepository, CustomAuthorityUtils customAuthorityUtils) {
+    public CustomUserDetailsService(MemberRepository memberRepository, CustomAuthorityUtils customAuthorityUtils, MemberCacheRepository memberCacheRepository) {
         this.memberRepository = memberRepository;
         this.customAuthorityUtils = customAuthorityUtils;
+        this.memberCacheRepository = memberCacheRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+//        memberCacheRepository.getMember(email).orElseGet(() -> MemberDto.from(memberRepository.findByEmail(email).orElseThrow(()->
+//                new SnsApplicationException(ErrorCode.USER_NOT_FOUND))));
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         Member findMember = optionalMember.orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
 
