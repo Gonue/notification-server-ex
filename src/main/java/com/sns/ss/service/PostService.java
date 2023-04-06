@@ -57,7 +57,8 @@ public class PostService {
         if(!Objects.equals(post.getMember().getMemberId(), member.getMemberId())){
             throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("user %s has no permission post", email, postId));
         }
-
+        likeRepository.deleteAllByPost(post);
+        postCommentRepository.deleteAllByPost(post);
         postRepository.delete(post);
     }
 
@@ -83,7 +84,7 @@ public class PostService {
     }
 
     @Transactional
-    public long likeCount(Long postId){
+    public Long likeCount(Long postId){
         Post post = getPostOrException(postId);
         return likeRepository.countByPost(post);
     }

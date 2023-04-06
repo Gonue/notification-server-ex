@@ -13,7 +13,8 @@ public class PostLike extends AuditingFields{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long likeId;
+    @Column(name = "post_like_id")
+    private Long postLikeId;
 
     @ManyToOne
     @JoinColumn(name= "member_id")

@@ -11,11 +11,11 @@ import javax.persistence.*;
 @Setter
 @Getter
 @Entity
-
 public class Post extends AuditingFields{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
     private Long postId;
 
     private String title;
