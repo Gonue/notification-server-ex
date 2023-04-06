@@ -22,13 +22,15 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final PostCommentRepository postCommentRepository;
     private final AlarmRepository alarmRepository;
+    private final AlarmService alarmService;
 
-    public PostService(PostRepository postRepository, MemberRepository memberRepository, LikeRepository likeRepository, PostCommentRepository postCommentRepository, AlarmRepository alarmRepository) {
+    public PostService(PostRepository postRepository, MemberRepository memberRepository, LikeRepository likeRepository, PostCommentRepository postCommentRepository, AlarmRepository alarmRepository, AlarmService alarmService) {
         this.postRepository = postRepository;
         this.memberRepository = memberRepository;
         this.likeRepository = likeRepository;
         this.postCommentRepository = postCommentRepository;
         this.alarmRepository = alarmRepository;
+        this.alarmService = alarmService;
     }
 
     @Transactional
@@ -80,7 +82,8 @@ public class PostService {
             throw new SnsApplicationException(ErrorCode.ALREADY_LIKED, String.format("userName %s already like post %d", email,postId));
         });
         likeRepository.save(PostLike.of(member,post));
-        alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
+        Alarm alarm = alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
+        alarmService.send(alarm.getAlarmId(), post.getMember().getEmail());
     }
 
     @Transactional
@@ -95,7 +98,8 @@ public class PostService {
         Member member = getMemberOrException(email);
 
         postCommentRepository.save(PostComment.of(member, post,  comment));
-        alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
+        Alarm alarm = alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
+        alarmService.send(alarm.getAlarmId(), post.getMember().getEmail());
     }
 
     public Page<PostCommentDto> commentList(Long postId, Pageable pageable){
