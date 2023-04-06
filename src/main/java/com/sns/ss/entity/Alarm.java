@@ -23,8 +23,7 @@ public class Alarm extends AuditingFields{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long alarmId;
 
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "member_id")
     private Member member;
 
