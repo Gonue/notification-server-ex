@@ -31,6 +31,7 @@ public class MemberService {
         this.alarmRepository = alarmRepository;
     }
 
+
     public MemberDto join(String email, String password, String name){
         memberRepository.findByEmail(email).ifPresent(it -> {
             throw new SnsApplicationException(ErrorCode.DUPLICATED_EMAIL, String.format("%s is duplicated", email));

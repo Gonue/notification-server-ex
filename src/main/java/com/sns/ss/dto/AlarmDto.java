@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 public class AlarmDto {
 
     private final Long alarmId;
-    private final MemberDto member;
     private final Alarm.AlarmType alarmType;
     private final AlarmArgs alarmArgs;
     private final LocalDateTime createdAt;
@@ -23,7 +22,6 @@ public class AlarmDto {
     public static AlarmDto from(Alarm entity){
         return new AlarmDto(
                 entity.getAlarmId(),
-                MemberDto.from(entity.getMember()),
                 entity.getAlarmType(),
                 entity.getAlarmArgs(),
                 entity.getCreatedAt(),
