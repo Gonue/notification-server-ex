@@ -1,11 +1,13 @@
 package com.sns.ss.service;
 
 import com.sns.ss.dto.AlarmArgs;
+import com.sns.ss.dto.AlarmEvent;
 import com.sns.ss.dto.PostCommentDto;
 import com.sns.ss.dto.PostDto;
 import com.sns.ss.entity.*;
 import com.sns.ss.exception.ErrorCode;
 import com.sns.ss.exception.SnsApplicationException;
+import com.sns.ss.kafka.producer.AlarmProducer;
 import com.sns.ss.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +23,14 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
     private final PostCommentRepository postCommentRepository;
-    private final AlarmRepository alarmRepository;
-    private final AlarmService alarmService;
+    private final AlarmProducer alarmProducer;
 
-    public PostService(PostRepository postRepository, MemberRepository memberRepository, LikeRepository likeRepository, PostCommentRepository postCommentRepository, AlarmRepository alarmRepository, AlarmService alarmService) {
+    public PostService(PostRepository postRepository, MemberRepository memberRepository, LikeRepository likeRepository, PostCommentRepository postCommentRepository, AlarmProducer alarmProducer) {
         this.postRepository = postRepository;
         this.memberRepository = memberRepository;
         this.likeRepository = likeRepository;
         this.postCommentRepository = postCommentRepository;
-        this.alarmRepository = alarmRepository;
-        this.alarmService = alarmService;
+        this.alarmProducer = alarmProducer;
     }
 
     @Transactional
@@ -82,8 +82,7 @@ public class PostService {
             throw new SnsApplicationException(ErrorCode.ALREADY_LIKED, String.format("userName %s already like post %d", email,postId));
         });
         likeRepository.save(PostLike.of(member,post));
-        Alarm alarm = alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
-        alarmService.send(alarm.getAlarmId(), post.getMember().getEmail());
+        alarmProducer.send(new AlarmEvent(post.getMember().getEmail(), Alarm.AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
     }
 
     @Transactional
@@ -98,8 +97,8 @@ public class PostService {
         Member member = getMemberOrException(email);
 
         postCommentRepository.save(PostComment.of(member, post,  comment));
-        Alarm alarm = alarmRepository.save(Alarm.of(post.getMember(), Alarm.AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
-        alarmService.send(alarm.getAlarmId(), post.getMember().getEmail());
+        alarmProducer.send(new AlarmEvent(post.getMember().getEmail(), Alarm.AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(member.getMemberId(), post.getPostId())));
+
     }
 
     public Page<PostCommentDto> commentList(Long postId, Pageable pageable){
