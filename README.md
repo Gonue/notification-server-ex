@@ -1,10 +1,10 @@
-# Simple SNS
+# 🛎️ Notification Server
 
 ## 🖥️ Develop Enviroment
 <p>
 <img src="https://img.shields.io/badge/Java 11-1E8CBE?style=for-the-badge&logo=&logoColor=white"> 
 <img src="https://img.shields.io/badge/springboot 2.7.1-6DB33F?style=for-the-badge&logo=SpringBoot&logoColor=white">
-<img src="https://img.shields.io/badge/Gradle 2.7.1-02303A?style=for-the-badge&logo=Gradle&logoColor=white">
+<img src="https://img.shields.io/badge/Gradle 7.6-02303A?style=for-the-badge&logo=Gradle&logoColor=white">
 <img src="https://img.shields.io/badge/Intellij IDEA Ultimate-000000?style=for-the-badge&logo=Intellij IDEA&logoColor=white">
 </p>
 
@@ -42,30 +42,9 @@
 
 ----
 
-## [🔗 ERD]()
+## 🐳 Starting with Docker
 
-----
-
-## Getting Start
-```shell
-$ git clone https://github.com/Gonue/sqs-lambda-trigger-ex.git
-```
-```shell
-$ docker-compose -f docker-compose-local-test.yaml
-```
-
-### OR
-
-```shell
-$ docker pull ghcr.io/gonue/application-server:latest
-```
-
-### [🔗 Docker Hub](https://hub.docker.com/repository/docker/gonue/application-server/general)
-### [🔗 Packages Link](https://github.com/Gonue/sqs-lambda-trigger-ex/pkgs/container/application-server)
-
-## 🐳 docker-compose Detail
-
-### Docker-compose-local-test.yml
+###  docker-compose-local-test.yml
 ```yaml
 version: "3.8"
 
@@ -119,13 +98,17 @@ services:
       - "8080:8080"
     restart: always
 ```
+```shell
+$ docker-compose -f docker-compose-local-test.yml
+```
 
 ----
 ## 📑 Reference
-
-### [🔗 API Docs]() & [🔗 API Endpoint]()
-
+### [🔗 ERD]()
+### [🔗 API Docs]()
 ### [🔗 Application Architecture]()
+### [🔗 Docker Hub](https://hub.docker.com/repository/docker/gonue/application-server/general)
+### [🔗 Packages Link](https://github.com/Gonue/sqs-lambda-trigger-ex/pkgs/container/application-server)
 
 ----
 
